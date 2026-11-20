@@ -109,7 +109,7 @@ export function extractTerms(text) {
 }
 
 /** True when the clause is about something the signer pays or owes. */
-const COST_WORDS = /(보증금|임대료|월세|차임|위약금|수수료|연체|지연이자|벌금|비용|대금|청구|결제|deposit|rent|fee|penalt|charge|price|cost|payment|interest|liabilit)/i;
+const COST_WORDS = /(보증금|임대료|월세|차임|위약금|수수료|연체|지연이자|벌금|비용|대금|청구|결제|급여|임금|deposit|rent|fee|penalt|charge|price|cost|payment|interest|liabilit|bill|invoice|hourly|rate)/i;
 export function isCostClause(text) {
   return COST_WORDS.test(String(text || ''));
 }

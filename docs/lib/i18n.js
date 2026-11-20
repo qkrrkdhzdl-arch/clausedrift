@@ -57,6 +57,8 @@ export const STRINGS = {
     'col.after': 'After',
     'col.change': 'Change',
     'col.status': 'Status',
+    'col.preamble': 'Preamble',
+    'unit.days': 'days',
 
     'kind.money': 'Amount',
     'kind.percent': 'Rate',
@@ -148,6 +150,8 @@ export const STRINGS = {
     'col.after': '수정 후',
     'col.change': '변화',
     'col.status': '상태',
+    'col.preamble': '전문',
+    'unit.days': '일',
 
     'kind.money': '금액',
     'kind.percent': '비율',

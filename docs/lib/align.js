@@ -119,21 +119,43 @@ export function diffWords(before, after) {
     }
   }
   const parts = [];
-  const pushPart = (op, text) => {
-    if (!text) return;
+  const pushPart = (op, token) => {
     const last = parts[parts.length - 1];
-    if (last && last.op === op) last.text += text;
-    else parts.push({ op, text });
+    if (last && last.op === op) last.tokens.push(token);
+    else parts.push({ op, tokens: [token] });
   };
   let i = 0, j = 0;
   while (i < n && j < m) {
-    if (key(a[i]) === key(b[j])) { pushPart('same', ' ' + a[i]); i++; j++; }
-    else if (dp[i + 1][j] >= dp[i][j + 1]) { pushPart('del', ' ' + a[i]); i++; }
-    else { pushPart('ins', ' ' + b[j]); j++; }
+    if (key(a[i]) === key(b[j])) { pushPart('same', a[i]); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { pushPart('del', a[i]); i++; }
+    else { pushPart('ins', b[j]); j++; }
   }
-  while (i < n) { pushPart('del', ' ' + a[i]); i++; }
-  while (j < m) { pushPart('ins', ' ' + b[j]); j++; }
-  return parts.map((p) => ({ ...p, text: p.text.replace(/^\s+/, '') }));
+  while (i < n) { pushPart('del', a[i]); i++; }
+  while (j < m) { pushPart('ins', b[j]); j++; }
+  return parts.map((p) => ({ ...p, text: p.tokens.join(' ') }));
+}
+
+const NO_SPACE_BEFORE = new Set([',', '.', ';', ':', '!', '?', ')', ']', '}', '%', "'s"]);
+const NO_SPACE_AFTER = new Set(['(', '[', '{', '$', '€', '£', '₩']);
+
+/** Rebuild the diff with typographic spacing (no "word ," or "$ 90"). */
+export function renderDiff(parts) {
+  const out = [];
+  let prevTail = '';
+  for (const part of parts) {
+    const toks = part.tokens || [];
+    let s = '';
+    let prev = prevTail;
+    for (const tk of toks) {
+      const space = prev && !NO_SPACE_BEFORE.has(tk) && !NO_SPACE_AFTER.has(prev)
+        && !(tk.startsWith("'") && tk.length === 2);
+      s += (space ? ' ' : '') + tk;
+      prev = tk;
+    }
+    if (toks.length) prevTail = toks[toks.length - 1];
+    out.push({ op: part.op, text: s });
+  }
+  return out;
 }
 
 /** Share of words that survived, 0..1 — used to rank the biggest rewrites. */

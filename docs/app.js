@@ -9,7 +9,8 @@
 import { extractText, isScannable } from './lib/textract.js';
 import { sha256Hex } from './lib/hash.js';
 import { segment } from './lib/segment.js';
-import { analyse, toMarkdown, KIND, formatTerm } from './lib/analyze.js';
+import { analyse, toMarkdown, KIND, formatTerm, formatMoney } from './lib/analyze.js';
+import { renderDiff } from './lib/align.js';
 import { setLang, getLang, t, pick } from './lib/i18n.js';
 import { SAMPLES } from './lib/samples.js';
 
@@ -87,7 +88,14 @@ function refreshCounts() {
   $('#status').textContent = ready ? '' : t('input.need');
 }
 
-function setSide(side, { text, name = '', sha = '', bytes = 0 }) {
+async function setSide(side, { text, name = '', sha = '', bytes = 0 }) {
+  if (text && !sha) {
+    // A pasted contract still gets a fingerprint, so the receipt says which
+    // text was compared even when there is no file to hash.
+    const encoded = new TextEncoder().encode(text);
+    sha = await sha256Hex(encoded);
+    bytes = encoded.length;
+  }
   state[side] = { text, name, sha, bytes, strategy: '', count: 0 };
   $(`#text-${side}`).value = text;
   refreshCounts();
@@ -102,7 +110,7 @@ async function readFile(side, file) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const { text, partial } = await extractText(file.name, bytes);
     const sha = await sha256Hex(bytes);
-    setSide(side, { text, name: file.name, sha, bytes: bytes.length });
+    await setSide(side, { text, name: file.name, sha, bytes: bytes.length });
     if (partial) {
       status.textContent = t('input.partial', { name: file.name });
       status.classList.add('warn');
@@ -135,8 +143,10 @@ function wireDrop(side) {
     if (file) readFile(side, file);
   });
   $(`#text-${side}`).addEventListener('input', (e) => {
-    state[side] = { ...state[side], text: e.target.value, name: state[side].name || '' };
+    const text = e.target.value;
+    state[side] = { ...state[side], text, name: state[side].name || '' };
     refreshCounts();
+    sha256Hex(new TextEncoder().encode(text)).then((sha) => { state[side].sha = sha; });
   });
 }
 
@@ -196,20 +206,26 @@ function render(result) {
     const tbody = el('tbody');
     for (const row of result.termRows) {
       const tr = el('tr');
-      tr.append(el('td', 'clause', row.clauseLabel || '—'));
+      tr.append(el('td', 'clause', clauseCellText(row)));
       tr.append(el('td', '', t('kind.' + row.kind)));
       tr.append(el('td', 'num', row.before ? formatTerm(row.before) : t('terms.addedNote')));
       tr.append(el('td', 'num', row.after ? formatTerm(row.after) : t('terms.removedNote')));
       const change = el('td', 'num');
       if (row.before && row.after) {
         const pct = row.deltaPct != null ? ` · ${(row.deltaPct * 100).toFixed(1)}%` : '';
-        const sign = row.delta > 0 ? '+' : '';
-        const label = row.kind === KIND.MONEY
-          ? `${sign}${row.delta.toLocaleString('en-US')}${row.currency === 'KRW' ? '' : ' ' + (row.currency || '')}`
-          : row.kind === KIND.PERCENT ? `${sign}${row.delta.toFixed(1)}%p`
-            : row.kind === KIND.DURATION ? `${sign}${row.delta}d` : '—';
-        const span = el('span', row.delta > 0 ? 'up' : 'down', label);
-        change.append(span, document.createTextNode(pct));
+        const arrow = row.delta > 0 ? '↑' : row.delta < 0 ? '↓' : '=';
+        let label;
+        if (row.kind === KIND.MONEY) {
+          const abs = formatMoney(Math.abs(row.delta), row.currency || 'KRW');
+          label = `${arrow} ${abs}`;
+        } else if (row.kind === KIND.PERCENT) {
+          label = `${arrow} ${Math.abs(row.delta).toFixed(1)}%p`;
+        } else if (row.kind === KIND.DURATION) {
+          label = `${arrow} ${Math.abs(row.delta)} ${t('unit.days')}`;
+        } else {
+          label = arrow;
+        }
+        change.append(el('span', 'dir', label), document.createTextNode(pct));
       } else {
         change.textContent = row.after ? t('status.added') : t('status.removed');
       }
@@ -267,9 +283,9 @@ function render(result) {
     head.append(chip(t('status.changed'), 'amber'));
     c.append(head);
     const bodyEl = el('div', 'body');
-    for (const part of op.diff) {
-      if (part.op === 'same') bodyEl.append(document.createTextNode(part.text + ' '));
-      else bodyEl.append(el('span', part.op, part.text + ' '));
+    for (const part of renderDiff(op.diff)) {
+      if (part.op === 'same') bodyEl.append(document.createTextNode(part.text));
+      else bodyEl.append(el('span', part.op, part.text));
     }
     c.append(bodyEl);
     body.append(c);
@@ -366,6 +382,13 @@ function render(result) {
   $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function clauseCellText(row) {
+  const label = row.clauseLabel && !/^[PL]\d+$/.test(row.clauseLabel) ? row.clauseLabel : '';
+  const title = row.clauseTitle && row.clauseTitle.replace(/^\S+\s*/, '').trim();
+  if (!label) return title ? `${t('col.preamble')}: ${title.slice(0, 40)}` : t('col.preamble');
+  return title ? `${label} ${title.slice(0, 38)}` : label;
+}
+
 function shortTitle(c) {
   const raw = (c.heading || c.body.split('\n')[0] || '').replace(/\s+/g, ' ').trim();
   return raw.length > 90 ? raw.slice(0, 89) + '…' : raw;
@@ -425,19 +448,19 @@ function boot() {
   wireDrop('a');
   wireDrop('b');
   $('#run').addEventListener('click', run);
-  $('#clear').addEventListener('click', () => {
-    setSide('a', { text: '' });
-    setSide('b', { text: '' });
+  $('#clear').addEventListener('click', async () => {
+    await setSide('a', { text: '' });
+    await setSide('b', { text: '' });
     state.result = null;
     $('#results').classList.remove('on');
     $('#results-body').textContent = '';
     $('#status').classList.remove('warn');
   });
   document.querySelectorAll('[data-sample]').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const s = SAMPLES[btn.dataset.sample];
-      setSide('a', { text: s.a.text, name: s.a.name });
-      setSide('b', { text: s.b.text, name: s.b.name });
+      await setSide('a', { text: s.a.text, name: s.a.name });
+      await setSide('b', { text: s.b.text, name: s.b.name });
       state.result = null;
       $('#status').classList.remove('warn');
     });
