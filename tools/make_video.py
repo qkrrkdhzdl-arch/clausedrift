@@ -31,8 +31,8 @@ INK = (27, 26, 23)
 RED = (163, 50, 35)
 SOFT = (86, 81, 74)
 
-FONT_REG = "/workspace/notes/NotoSansKR-subset.otf"
-FONT_SERIF = "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
+FONT_REG = "/usr/share/fonts/pickle-hwp/NotoSansCJKkr-Regular.otf"
+FONT_SERIF = "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf"
 
 import imageio_ffmpeg  # noqa: E402
 
@@ -41,7 +41,7 @@ FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 
 def font(size, serif=False, korean=False):
     for path in ([FONT_SERIF] if serif else []) + [FONT_REG,
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]:
+              "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"]:
         try:
             if korean and path == FONT_SERIF:
                 continue
