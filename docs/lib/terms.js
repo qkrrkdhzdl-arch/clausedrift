@@ -9,7 +9,11 @@
  * table with the delta and the yearly cost.
  */
 
+import { trigrams, jaccard } from './align.js';
+
 export const KIND = { MONEY: 'money', PERCENT: 'percent', DURATION: 'duration', DATE: 'date' };
+
+const CONTEXT = 34;
 
 const MULT = { 천: 1e3, 만: 1e4, 억: 1e8, 조: 1e12 };
 const CUR_BY_UNIT = {
@@ -23,6 +27,7 @@ const num = (s) => Number(String(s).replace(/,/g, ''));
 
 function pushTerm(list, term) {
   if (!Number.isFinite(term.value)) return;
+  term.context = term.context || '';
   // Drop a candidate that sits inside an already accepted, longer match.
   for (const t of list) {
     if (term.start < t.end && t.start < term.end) {
@@ -105,6 +110,9 @@ export function extractTerms(text) {
     });
   }
 
+  for (const t of out) {
+    t.context = src.slice(Math.max(0, t.start - CONTEXT), Math.min(src.length, t.end + CONTEXT));
+  }
   return out.sort((a, b) => a.start - b.start);
 }
 
@@ -142,11 +150,49 @@ export function pairTerms(aTerms, bTerms, kinds = [KIND.MONEY, KIND.PERCENT, KIN
   for (const kind of kinds) {
     const A = aTerms.filter((t) => t.kind === kind);
     const B = bTerms.filter((t) => t.kind === kind);
-    const n = Math.max(A.length, B.length);
-    for (let k = 0; k < n; k++) {
-      const before = A[k] || null;
-      const after = B[k] || null;
-      if (!before && !after) continue;
+    if (!A.length && !B.length) continue;
+
+    // What surrounds a number is what identifies it. The rent is the number
+    // near "월 차임", the penalty the one near "위약금" — so two versions of a
+    // clause are paired on context, not on the order the numbers happen to
+    // appear in.
+    const score = (a, b) => {
+      const sameValue = a.value === b.value && (a.currency || '') === (b.currency || '')
+        && (a.unit || '') === (b.unit || '');
+      const ctx = jaccard(trigrams(a.context || ''), trigrams(b.context || ''));
+      return (sameValue ? 0.35 : 0) + 0.65 * ctx;
+    };
+
+    const n = A.length, m = B.length;
+    const dp = Array.from({ length: n + 1 }, () => new Float64Array(m + 1));
+    const back = Array.from({ length: n + 1 }, () => new Int8Array(m + 1));
+    const GAP = -0.35;
+    for (let i = 1; i <= n; i++) { dp[i][0] = dp[i - 1][0] + GAP; back[i][0] = 1; }
+    for (let j = 1; j <= m; j++) { dp[0][j] = dp[0][j - 1] + GAP; back[0][j] = 2; }
+    for (let i = 1; i <= n; i++) {
+      for (let j = 1; j <= m; j++) {
+        const sc = score(A[i - 1], B[j - 1]);
+        const diag = dp[i - 1][j - 1] + (sc >= 0.15 ? sc : sc - 1);
+        const up = dp[i - 1][j] + GAP;
+        const left = dp[i][j - 1] + GAP;
+        let best = diag, dir = 0;
+        if (up > best) { best = up; dir = 1; }
+        if (left > best) { best = left; dir = 2; }
+        dp[i][j] = best; back[i][j] = dir;
+      }
+    }
+
+    const pairs = [];
+    let i = n, j = m;
+    while (i > 0 || j > 0) {
+      const dir = i === 0 ? 2 : j === 0 ? 1 : back[i][j];
+      if (dir === 0) { pairs.push([A[i - 1], B[j - 1]]); i--; j--; }
+      else if (dir === 1) { pairs.push([A[i - 1], null]); i--; }
+      else { pairs.push([null, B[j - 1]]); j--; }
+    }
+    pairs.reverse();
+
+    for (const [before, after] of pairs) {
       if (before && after && before.value === after.value
         && (before.currency || '') === (after.currency || '')
         && (before.unit || '') === (after.unit || '')) continue;

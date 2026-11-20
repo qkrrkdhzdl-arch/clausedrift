@@ -173,14 +173,16 @@ export const RISKS = [
     id: 'deposit-forfeit', sev: 'high',
     re: /(보증금[^.\n]{0,20}(?:몰수|반환하지|공제)|몰수|forfeit\s+(?:the\s+)?deposit|deposit\s+(?:is|shall\s+be)\s+non-?refundable)/i,
     en: {
-      title: 'The deposit can be kept',
-      why: 'A deposit that can be kept in full turns a small dispute into a total loss. Korean housing law protects the right to have the deposit returned minus actual damage.',
-      ask: 'Can the deposit be returned within 14 days of move-out, minus itemised and evidenced damage?',
+      title: 'The deposit comes back reduced — or not at all',
+      why: 'Deductions decided by the other side turn a small dispute into a total loss: cleaning, repapering, "restoration", a forfeited deposit. Korean housing law lets the landlord keep only actual, evidenced damage; 개인정보 and 약관 rules aside, the burden of proof is on the person making the deduction.',
+      ask: 'Can the deposit be returned within 14 days of move-out, with every deduction itemised and evidenced?',
+      cost: true,
     },
     ko: {
-      title: '보증금을 돌려받지 못할 수 있습니다',
-      why: '보증금 전액을 몰수할 수 있다면 작은 분쟁이 전액 손실이 됩니다. 주택임대차보호법상 실제 손해를 뺀 나머지는 돌려받아야 합니다.',
-      ask: '퇴거 후 14일 안에, 증빙된 실제 손해만 공제하고 반환하도록 바꿀 수 있나요?',
+      title: '보증금이 깎이거나 돌려받지 못할 수 있습니다',
+      why: '공제 항목과 금액을 상대방이 정하면 청소비·도배비·원상복구비 명목으로 보증금이 크게 줄 수 있습니다. 주택임대차보호법상 실제로 발생한 손해만 공제할 수 있고, 공제하는 쪽이 이를 증명해야 합니다.',
+      ask: '퇴거 후 14일 안에, 항목별 증빙이 있는 실제 손해만 공제하고 반환하도록 바꿀 수 있나요?',
+      cost: true,
     },
   },
   {
