@@ -174,7 +174,7 @@ export const RISKS = [
     re: /(보증금[^.\n]{0,20}(?:몰수|반환하지|공제)|몰수|forfeit\s+(?:the\s+)?deposit|deposit\s+(?:is|shall\s+be)\s+non-?refundable)/i,
     en: {
       title: 'The deposit comes back reduced — or not at all',
-      why: 'Deductions decided by the other side turn a small dispute into a total loss: cleaning, repapering, "restoration", a forfeited deposit. Korean housing law lets the landlord keep only actual, evidenced damage; 개인정보 and 약관 rules aside, the burden of proof is on the person making the deduction.',
+      why: 'Deductions decided by the other side turn a small dispute into a total loss: cleaning, repapering, "restoration", a forfeited deposit. Korean housing law lets the landlord keep only actual damage, and the person making the deduction has to prove it.',
       ask: 'Can the deposit be returned within 14 days of move-out, with every deduction itemised and evidenced?',
       cost: true,
     },

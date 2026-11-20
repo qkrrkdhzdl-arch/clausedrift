@@ -390,7 +390,10 @@ function clauseCellText(row) {
 }
 
 function shortTitle(c) {
-  const raw = (c.heading || c.body.split('\n')[0] || '').replace(/\s+/g, ' ').trim();
+  let raw = (c.heading || c.body.split('\n')[0] || '').replace(/\s+/g, ' ').trim();
+  // The heading usually repeats its own number ("제3조 (보증금 및 차임)"),
+  // which the header already shows — do not print it twice.
+  if (c.label && raw.startsWith(c.label)) raw = raw.slice(c.label.length).trim();
   return raw.length > 90 ? raw.slice(0, 89) + '…' : raw;
 }
 
