@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clause Drift — what changed in the contract you were sent</title>
+<meta name="description" content="Compare two versions of a contract in your browser: the amounts, the periods and the new obligations, clause by clause. Nothing is uploaded." />
+<meta name="color-scheme" content="light" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f7f4ee'/%3E%3Cpath d='M8 10h16M8 16h10M8 22h13' stroke='%231b1a17' stroke-width='2'/%3E%3Cpath d='M22 14l4 4-4 4' stroke='%23a33223' stroke-width='2' fill='none'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <span class="mark">Clause <span>Drift</span></span>
+      <span class="sub" data-i18n="app.tagline" style="display:none"></span>
+    </a>
+    <span class="spacer"></span>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="ko" aria-pressed="false">한국어</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1 id="tagline">You were sent a revised contract. <em>Here is what changed</em>, and what it costs.</h1>
+      <p class="lede" id="lede">Drop the two versions you were sent. Clause Drift reads them in your browser, matches clause by clause, and puts the amounts, periods and new obligations side by side — no upload, no account.</p>
+      <div class="meta">
+        <span><span class="dot"></span><span data-i18n="meta.offline">Runs entirely in this tab</span></span>
+        <span data-i18n="meta.formats">PDF · DOCX · HWPX · TXT, or paste</span>
+        <span data-i18n="meta.langs">Korean and English contracts</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="inputs">
+        <div class="panel">
+          <h2 id="label-a">1 · The version you were sent first</h2>
+          <div class="drop" id="drop-a" tabindex="0" role="button" aria-labelledby="label-a">
+            <strong id="drop-a-title">Drop a file, or click to choose</strong>
+            <span id="drop-a-file" class="file"></span>
+            <div id="drop-a-count" class="count"></div>
+            <input type="file" id="file-a" accept=".txt,.md,.pdf,.docx,.hwpx,.odt,.csv,text/plain,application/pdf" hidden />
+          </div>
+          <div class="or" id="or-a">or paste the text</div>
+          <label for="text-a" class="sr" hidden>Paste the contract text</label>
+          <textarea id="text-a" spellcheck="false" aria-label="Earlier version text"></textarea>
+        </div>
+
+        <div class="panel">
+          <h2 id="label-b">2 · The revised version</h2>
+          <div class="drop" id="drop-b" tabindex="0" role="button" aria-labelledby="label-b">
+            <strong id="drop-b-title">Drop a file, or click to choose</strong>
+            <span id="drop-b-file" class="file"></span>
+            <div id="drop-b-count" class="count"></div>
+            <input type="file" id="file-b" accept=".txt,.md,.pdf,.docx,.hwpx,.odt,.csv,text/plain,application/pdf" hidden />
+          </div>
+          <div class="or" id="or-b">or paste the text</div>
+          <textarea id="text-b" spellcheck="false" aria-label="Revised version text"></textarea>
+        </div>
+      </div>
+
+      <div class="samples">
+        <button type="button" data-sample="lease">Load a sample pair · Studio lease (Korean)</button>
+        <button type="button" data-sample="freelance">Load a sample pair · Design contract (English)</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="run" disabled>Compare the two versions</button>
+        <button type="button" class="btn ghost small" id="clear">Clear</button>
+        <span class="hint" id="status"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="results" id="results" aria-live="polite">
+    <div class="wrap" id="results-body"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="disc" id="disclaimer"></p>
+    <p class="src">Clause Drift · a browser-only contract comparison · no server, no analytics, no network requests after load.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
