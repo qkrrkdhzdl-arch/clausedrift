@@ -1,0 +1,65 @@
+{
+  "voice": "en",
+  "scenes": [
+    {
+      "id": "01-title",
+      "shot": "title",
+      "caption": "Clause Drift",
+      "say": "Contracts arrive twice. The version you read, and the revision that says: small changes."
+    },
+    {
+      "id": "02-inputs",
+      "shot": "shots/01-input.png",
+      "caption": "Drop both versions — read in the tab, never uploaded",
+      "say": "Clause Drift compares the two. Drop the files, or paste the text. It reads them here, in the browser: docx, hwpx, pdf, plain text."
+    },
+    {
+      "id": "03-sample",
+      "shot": "shots/02-loaded.png",
+      "caption": "A studio lease, before and after",
+      "say": "Here are two versions of the same lease, loaded in one click."
+    },
+    {
+      "id": "04-verdict",
+      "shot": "shots/03-verdict.png",
+      "caption": "4 of 10 clauses changed · 3 added · 2 removed",
+      "say": "Ten clauses. Four changed, three were added, two are gone. The deposit rose by two million won. The rent, seventy thousand a month."
+    },
+    {
+      "id": "05-amounts",
+      "shot": "shots/04-amounts.png",
+      "caption": "Amounts and periods, with the delta",
+      "say": "Every amount, rate, period and date that moved, in one table: a late-payment interest that did not exist yesterday, a penalty that went from one month to two."
+    },
+    {
+      "id": "06-risks",
+      "shot": "shots/05-risks.png",
+      "caption": "New obligations, and the question to ask",
+      "say": "Then the clauses that change what you owe. Arbitration instead of court, and the arbitration fee on the tenant. Deductions from the deposit, decided by the landlord. Each one says why it matters, and the question to send back before signing."
+    },
+    {
+      "id": "07-gone",
+      "shot": "shots/06-gone.png",
+      "caption": "Protections that disappeared",
+      "say": "What disappeared counts too: the sentence that promised the deposit back, fourteen days after move-out, is simply not in the revision."
+    },
+    {
+      "id": "08-redline",
+      "shot": "shots/07-redline.png",
+      "caption": "Clause by clause — green added, struck red removed",
+      "say": "Clause by clause, the way an editor reads it. Green is new wording, struck red is what it replaced, and clauses that did not change fold away."
+    },
+    {
+      "id": "09-korean",
+      "shot": "shots/08-korean.png",
+      "caption": "한국어 계약서도 같은 화면에서",
+      "say": "The same page in Korean, because that is what the contract is in."
+    },
+    {
+      "id": "10-close",
+      "shot": "title",
+      "caption": "No upload · no account · 87 tests · MIT",
+      "say": "No upload, no account, no server. The alignment matches clauses by what they say, not by their number. Eighty-seven tests. Clause Drift."
+    }
+  ]
+}

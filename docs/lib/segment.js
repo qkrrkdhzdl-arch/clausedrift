@@ -152,7 +152,8 @@ export function segment(rawText) {
 /** Short human label for a clause, used in tables and report rows. */
 export function clauseTitle(c, max = 64) {
   const head = (c.heading || c.body.split('\n')[0] || '').replace(/\s+/g, ' ').trim();
-  const label = c.label && !/^[PL]\d+$/.test(c.label) ? c.label + ' ' : '';
+  const hasLabel = c.label && !/^[PL]\d+$/.test(c.label);
+  const label = hasLabel && !head.startsWith(c.label) ? c.label + ' ' : '';
   const t = (label + head).trim();
   return t.length > max ? t.slice(0, max - 1) + '…' : t;
 }

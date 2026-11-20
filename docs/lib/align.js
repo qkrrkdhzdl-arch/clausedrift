@@ -99,10 +99,25 @@ export function alignClauses(A, B, { floor = 0.42, sameAt = 0.97 } = {}) {
   return out;
 }
 
-const WORD = /\d[\d,.'’]*\d|\d|[\p{L}]+(?:['’][\p{L}]+)*|[^\s\p{L}\p{N}]/gu;
+/**
+ * Tokens are word-chunks with their edge punctuation peeled off, so "제3조",
+ * "12,000,000원" and "$4,800" stay whole while "word," can still be spaced
+ * correctly on screen.
+ */
+const LEAD = /^[([{"'\u2018\u201c\u300c\u300e]/;
+const TRAIL = /[)\]},;:!?"'\u2019\u201d\u300d\u300f.]$/;
 
 export function tokenize(text) {
-  return String(text || '').match(WORD) || [];
+  const out = [];
+  for (const chunk of String(text || '').split(/\s+/).filter(Boolean)) {
+    let s = chunk;
+    while (s.length > 1 && LEAD.test(s)) { out.push(s[0]); s = s.slice(1); }
+    let trail = '';
+    while (s.length > 1 && TRAIL.test(s)) { trail = s.slice(-1) + trail; s = s.slice(0, -1); }
+    if (s) out.push(s);
+    for (const ch of trail) out.push(ch);
+  }
+  return out;
 }
 
 /** LCS word diff. Returns [{op:'same'|'ins'|'del', text}]. */

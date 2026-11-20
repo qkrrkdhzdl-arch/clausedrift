@@ -37,7 +37,7 @@ export const STRINGS = {
     'summary.count': '{changed} of {total} clauses changed · {added} added · {removed} removed',
     'summary.cost': 'Amounts moved: {list}',
     'summary.risk': '{high} high-risk and {medium} medium-risk new or strengthened terms',
-    'summary.protect': '{n} protections removed or weakened',
+    'summary.protect': 'Protections removed or weakened: {n}',
     'summary.same': 'Nothing that affects money or obligations changed — the edits are wording only.',
 
     'section.terms': 'Amounts and periods that moved',
@@ -130,7 +130,7 @@ export const STRINGS = {
     'summary.count': '조항 {total}개 중 {changed}개 변경 · 추가 {added} · 삭제 {removed}',
     'summary.cost': '달라진 금액: {list}',
     'summary.risk': '위험도 높은 조항 {high}건, 중간 {medium}건이 새로 생기거나 강화됨',
-    'summary.protect': '보호 조항 {n}개가 사라지거나 약화됨',
+    'summary.protect': '사라지거나 약화된 보호 조항: {n}개',
     'summary.same': '금액과 의무에 영향을 주는 변경은 없습니다. 문구만 다듬어졌습니다.',
 
     'section.terms': '달라진 금액과 기간',
